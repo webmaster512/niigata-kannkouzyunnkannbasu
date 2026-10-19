@@ -1,0 +1,258 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="新潟市の観光情報をスマートフォンで見やすく楽しめるデジタルパンフレットです。">
+  <title>新潟市 観光デジタルパンフレット</title>
+
+
+  <style>
+     /* パンフレット表示エリア */
+   
+#brochure {
+  width: 100%;
+  max-width: 100%;
+  margin: 8px auto;
+  padding: 2px;
+  text-align: center;
+}
+
+
+    #brochure h2 {
+  font-size: 18px;
+  color: #287653;
+  margin-bottom: 8px;
+}
+
+    #pageLabel {
+  font-size: 16px;
+  font-weight: bold;
+  color: #263b35;
+  margin: 6px 0;
+}
+
+  
+#brochurePage {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 0;
+  border: none;
+  background: white;
+}
+
+
+    #brochure button {
+      min-height: 48px;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 10px;
+      background: #173A85;
+      color: white;
+      font-size: 15px;
+      cursor: pointer;
+    }
+    .page-buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.page-buttons button {
+  flex: 1;
+  min-width: 0;
+}
+
+    #brochure button:disabled {
+  background: #80D3F5;
+  color: #173A85;
+  cursor: not-allowed;
+}
+
+    @media (max-width: 480px) {
+      #brochure {
+        padding: 4px;
+      }
+
+      #brochure h2 {
+        font-size: 20px;
+      }
+
+      #brochure button {
+        flex: 1;
+        padding: 10px 8px;
+        font-size: 14px;
+      }
+    }
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Yu Gothic", "Meiryo", sans-serif;
+      color: #263b35;
+      background: #f5f8f5;
+      line-height: 1.7;
+    }
+
+   
+header {
+  background: #FFF064;
+  color: #173A85;
+  text-align: center;
+  padding: 10px 12px;
+}
+header h1 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+
+    main {
+      width: min(100% - 28px, 700px);
+      margin: 24px auto 40px;
+    }
+    
+
+    .notice {
+      margin-top: 24px;
+      padding: 14px;
+      background: #edf2ee;
+      border-radius: 10px;
+      font-size: 13px;
+      color: #526158;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px 12px;
+      color: #637268;
+      font-size: 12px;
+    }
+  </style>
+  
+
+</head>
+<body>
+ 
+<header>
+  <h1>新潟市観光循環バス</h1>
+</header>
+
+
+
+  </main>
+
+
+  
+ <section id="brochure">
+    <p id="pageLabel">1 / 4 ページ</p>
+
+    <img
+      id="brochurePage"
+      src="images/page-0001.jpg"
+      alt="パンフレット1ページ目"
+      
+    >
+
+    
+<div class="page-buttons" style="display:flex; justify-content:center; gap:12px; margin-top:16px;">
+  <button id="prevPage" type="button" disabled>← 前のページ</button>
+  <button id="nextPage" type="button">次のページ →</button>
+</div>
+
+  </section>
+
+  <script>
+    const totalPages = 4;
+    let currentPage = 1;
+
+    const brochurePage = document.getElementById("brochurePage");
+    const pageLabel = document.getElementById("pageLabel");
+    const prevButton = document.getElementById("prevPage");
+    const nextButton = document.getElementById("nextPage");
+
+    function showPage() {
+      const pageNumber = String(currentPage).padStart(4, "0");
+
+      brochurePage.src = `images/page-${pageNumber}.jpg`;
+      brochurePage.alt = `パンフレット${currentPage}ページ目`;
+      pageLabel.textContent = `${currentPage} / ${totalPages} ページ`;
+
+      prevButton.disabled = currentPage === 1;
+      nextButton.disabled = currentPage === totalPages;
+    }
+
+    prevButton.addEventListener("click", () => {
+      if (currentPage > 1) {
+        currentPage--;
+        showPage();
+      }
+    });
+
+    nextButton.addEventListener("click", () => {
+      if (currentPage < totalPages) {
+        currentPage++;
+        showPage();
+      }
+    });
+    
+
+let touchStartX = 0;
+let touchStartY = 0;
+let startTouchCount = 0;
+
+brochurePage.addEventListener("touchstart", (event) => {
+  startTouchCount = event.touches.length;
+
+  if (startTouchCount !== 1) {
+    return;
+  }
+
+  touchStartX = event.changedTouches[0].screenX;
+  touchStartY = event.changedTouches[0].screenY;
+}, { passive: true });
+
+brochurePage.addEventListener("touchend", (event) => {
+  // 2本指以上で操作を始めた場合はページを切り替えない
+  if (startTouchCount !== 1) {
+    return;
+  }
+
+  // 指が離れたときに、ほかの指が残っていれば何もしない
+  if (event.touches.length !== 0) {
+    return;
+  }
+
+  const touchEndX = event.changedTouches[0].screenX;
+  const touchEndY = event.changedTouches[0].screenY;
+
+  const diffX = touchEndX - touchStartX;
+  const diffY = touchEndY - touchStartY;
+
+  if (Math.abs(diffX) < 50 || Math.abs(diffX) < Math.abs(diffY)) {
+    return;
+  }
+
+  if (diffX < 0 && currentPage < totalPages) {
+    currentPage++;
+    showPage();
+  } else if (diffX > 0 && currentPage > 1) {
+    currentPage--;
+    showPage();
+  }
+}, { passive: true });
+
+
+  </script>
+
+  <script>
+    
+  </script>
+
+</body>
+</html>
